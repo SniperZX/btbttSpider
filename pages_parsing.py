@@ -44,42 +44,47 @@ def get_links_from(channel, pages):
 
 # spider 2
 def get_item_info(item):
-    # url = item.get('url')
-    url = item
-    print(url)
-    try:
-        wb_data = requests.get(url)
-        soup = BeautifulSoup(wb_data.text, 'lxml')
-        details = soup.select('td.post_td p')
-        title = soup.title.text
-        images = soup.select('p > img')
-        imagesurl = ''
-        downloadUrl = ''
-        for image in images:
+    url = item.get('url')
+    # url = item
+    oo = item_info.find_one({'url': url})
+    if oo:
+        print("pass")
+        pass
+    else:
+        print(url)
+        try:
+            wb_data = requests.get(url)
+            soup = BeautifulSoup(wb_data.text, 'lxml')
+            details = soup.select('td.post_td p')
+            title = soup.title.text
+            images = soup.select('p > img')
+            imagesurl = ''
+            downloadUrl = ''
+            for image in images:
 
-            print(image.get('src').find('http'))
-            if image.get('src') and image.get('src').find('http') > -1:
-                print(image.get('src'))
-                imagesurl = qinuhost + image.get('src').split('/')[-1]
-                downloadImageFile(image.get('src'))
-            else:
-                print(home + image.get('src'))
-                imagesurl += qinuhost + image.get('src').split('/')[-1]+'\n'
-                downloadImageFile(host + image.get('src'))
-        attchs = soup.select('div.attachlist a')
-        for attch in attchs:
-            print(attch.get('href'))
-            href = attch.get('href')
-            href = href.replace('dialog','download')
-            downloadFile(home+href,attch.get_text())
-            downloadUrl += qinuhost +attch.get_text()+"\n"
-            print(href)
+                print(image.get('src').find('http'))
+                if image.get('src') and image.get('src').find('http') > -1:
+                    print(image.get('src'))
+                    imagesurl = qinuhost + image.get('src').split('/')[-1]
+                    downloadImageFile(image.get('src'))
+                else:
+                    print(home + image.get('src'))
+                    imagesurl += qinuhost + image.get('src').split('/')[-1]+'\n'
+                    downloadImageFile(host + image.get('src'))
+            attchs = soup.select('div.attachlist a')
+            for attch in attchs:
+                print(attch.get('href'))
+                href = attch.get('href')
+                href = href.replace('dialog','download')
+                downloadFile(home+href,attch.get_text())
+                downloadUrl += qinuhost +attch.get_text()+"\n"
+                print(href)
 
-        print(attch)
-        item_info.insert_one({'title': title, 'detail': str(details), 'image': imagesurl,  'url': item, 'download':downloadUrl})
-        print(title)
-    except Exception as e:
-        print('Error:', e)
+            print(attch)
+            item_info.insert_one({'title': title, 'detail': str(details), 'image': imagesurl,  'url': url, 'download':downloadUrl})
+            print(title)
+        except Exception as e:
+            print('Error:', e)
 
 
     # no_longer_exist = '404' in soup.find('script', type="text/javascript").get('src').split('/')
@@ -120,4 +125,4 @@ def downloadFile(fileUrl,file_name):
         f.close()
     return local_filename
 
-get_item_info('http://www.btbtt.co/thread-index-fid-950-tid-4346742.htm')
+# get_item_info('http://www.btbtt.co/thread-index-fid-950-tid-4346742.htm')
